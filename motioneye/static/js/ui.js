@@ -793,7 +793,7 @@ function showModalDialog(content, onClose, onShow, stack) {
         var children = container.children(':visible');
         _modalDialogContexts.push({
             children: children,
-            onClose: container[0]._onClose,
+            onClose: container[0]._onClose
         });
         
         children.css('display', 'none');

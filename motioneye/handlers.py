@@ -88,19 +88,18 @@ def msghandler(mqc, userdata, msg):
 # topic prefix and the suffix. The message itself is JSON encoded,
 # with the "val" field set, and possibly more fields merged in.
 #
-def publish(suffix, val, more, mqc):
-    topic = mqttTopicPrefix
+def publish(suffix, val, more, mqc,camera_config):
     robj = {}
     robj["val"] = val
     if more is not None:
         robj.update(more)
     jsonstr = json.dumps(robj)
-    fulltopic = topic + "/" + suffix
+    fulltopic = camera_config["@mqttTopicPrefix"] + "/" + suffix
     mqttlogging("MQTT: Publishing " + fulltopic + ": " + jsonstr)
     mqc.publish(fulltopic, jsonstr, qos=0, retain=True)
 
 
-def createMQTTClient(RelayEventHandler):
+def createMQTTClient(RelayEventHandler,camera_config):
     global topic
 
     if RelayEventHandler.mqc:
@@ -122,7 +121,7 @@ def createMQTTClient(RelayEventHandler):
         for attempt in range(10000):
             try:
                 mqttlogging("MQTT: Connecting to MQTT broker at %s:%s" % (mqttHost, mqttPort))
-                mqc.connect(mqttHost, mqttPort, 60)
+                mqc.connect(camera_config['@mqttBroker'], camera_config['@mqttBrokerPort'], 60)
             except socket.error:
                 mqttlogging("MQTT: Socket error raised, retry in %d seconds" % _sleep)
                 _sleep = _sleep * 2
@@ -1832,13 +1831,13 @@ class RelayEventHandler(BaseHandler):
         else:
             logging.warn('unknown event %s' % event)
 
-        if createMQTTClient(self):
+        if camera_config['@mqttEnabled'] and createMQTTClient(self,camera_config):
             publish("event_" + event,
                     {"motion": _motion,
                      "thread_id": thread_id,
                      "camera_id": camera_id,
                      "timestamp": int(time.time())
-                     }, "", self.mqc)
+                     }, "", self.mqc,camera_config)
 
         self.finish_json()
 

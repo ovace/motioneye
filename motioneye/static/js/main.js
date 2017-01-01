@@ -1,10 +1,11 @@
+var debug = false;
 var pushConfigs = {};
 var pushConfigReboot = false;
 var refreshDisabled = {};
 /* dictionary indexed by cameraId, tells if refresh is disabled for a given camera */
 var fullScreenCameraId = null;
 var inProgress = false;
-var refreshInterval = 15;
+var refreshInterval = debug ? 11500 : 15;
 /* milliseconds */
 var framerateFactor = 1;
 var resolutionFactor = 1;
@@ -19,6 +20,7 @@ var overlayVisible = false;
 var layoutColumns = 1;
 var fitFramesVertically = false;
 var layoutRows = 1;
+
 
 
 /* Object utilities */
@@ -72,7 +74,6 @@ Object.update = function (dest, source) {
         if (!source.hasOwnProperty(key)) {
             continue;
         }
-
         dest[key] = source[key];
     }
 };
@@ -696,6 +697,13 @@ function initUI() {
     $('#fridayEnabledSwitch').change(updateConfigUI);
     $('#saturdayEnabledSwitch').change(updateConfigUI);
     $('#sundayEnabledSwitch').change(updateConfigUI);
+
+
+    $('input.mqtt-config, select.mqtt-config, textarea.mqtt-config').change(function () {
+        pushCameraConfig($(this).parents('tr:eq(0)').attr('reboot') == 'true');
+    });
+
+
 
     /* minimizable sections */
     $('span.minimize').click(function () {
@@ -1742,6 +1750,7 @@ function mainUi2Dict() {
 }
 
 function dict2MainUi(dict) {
+
     function markHideIfNull(field, elemId) {
         var elem = $('#' + elemId);
         var sectionDiv = elem.parents('div.settings-section-title:eq(0)');
@@ -1860,6 +1869,17 @@ function cameraUi2Dict() {
             return e;
         }),
 
+        /* MQTT */
+        'mqttEnabled': $('#mqttEnabled')[0].checked,
+        'mqttClientId': $('#mqttClientId').val(),
+        'mqttBroker': $('#mqttBroker').val(),
+        'mqttBrokerPort': $('#mqttBrokerPort').val(),
+        'mqttTopicPrefix': $('#mqttTopicPrefix').val(),
+        'mqttUser': $('#mqttUser').val(),
+        'mqttPassword': $('#mqttPassword').val(),
+        'mqttUseTLS': $('#mqttUseTLS')[0].checked,
+        'mqttNoAuth': $('#mqttNoAuth')[0].checked,
+
         /* file storage */
         'storage_device': $('#storageDeviceSelect').val(),
         'network_server': $('#networkServerEntry').val(),
@@ -1974,6 +1994,8 @@ function cameraUi2Dict() {
         'working_schedule_type': $('#workingScheduleTypeSelect').val(),
     };
 
+
+
     /* if all working schedule days are disabled,
      * also disable the global working schedule */
     var hasWS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].some(function (day) {
@@ -2046,13 +2068,14 @@ function cameraUi2Dict() {
         dict['_' + name] = value;
     });
 
+    console.log('final : ',dict);
+
     return dict;
 }
 
 function dict2CameraUi(dict) {
     if (dict == null) {
         /* errors while getting the configuration */
-
         $('#videoDeviceEnabledSwitch')[0].error = true;
         $('#videoDeviceEnabledSwitch')[0].checked = true;
         /* so that the user can explicitly disable the camera */
@@ -2105,6 +2128,20 @@ function dict2CameraUi(dict) {
             prettyType = 'Simple MJPEG Camera';
             break;
     }
+
+
+    /* MQTT */
+    $('#mqttEnabled')[0].checked = dict['mqttEnabled'];
+    markHideIfNull('enabled', 'mqttEnabled');
+    $('#mqttClientId').val(dict['mqttClientId']);
+    $('#mqttBroker').val(dict['mqttBroker']);
+    $('#mqttBrokerPort').val(dict['mqttBrokerPort']);
+    $('#mqttTopicPrefix').val(dict['mqttTopicPrefix']);
+    $('#mqttUser').val(dict['mqttUser']);
+    $('#mqttPassword').val(dict['mqttPassword']);
+    $('#mqttUseTLS')[0].checked = dict['mqttUseTLS'];
+    $('#mqttNoAuth')[0].checked = dict['mqttNoAuth'];
+
 
     $('#videoDeviceEnabledSwitch')[0].checked = dict['enabled'];
     markHideIfNull('enabled', 'videoDeviceEnabledSwitch');
@@ -2502,7 +2539,6 @@ function dict2CameraUi(dict) {
 
 
 /* progress */
-
 function beginProgress(cameraIds) {
     if (inProgress) {
         return;
@@ -2585,7 +2621,6 @@ function uploadFile(path, input, callback) {
 
     ajax('POST', path, formData, callback);
 }
-
 
 /* apply button */
 
@@ -4964,7 +4999,6 @@ function recreateCameraFrames(cameras) {
     }
 }
 
-
 function doConfigureCamera(cameraId) {
     if (inProgress) {
         return;
@@ -5192,7 +5226,6 @@ function checkCameraErrors() {
 
     setTimeout(checkCameraErrors, 1000);
 }
-
 
 /* startup function */
 

@@ -31,7 +31,5 @@ uri="/_relay_event/?_username=$username&event=$event&thread_id=$thread_id"
 data="{\"filename\": \"$filename\"}"
 signature=$(echo -n "POST:$uri:$data:$password" | sha1sum | cut -d ' ' -f 1)
 
-#echo "http://127.0.0.1:$port$uri&_signature=$signature" > /tmp/motion1.txt
-
 curl -s -S -m $timeout -H "Content-Type: application/json" -X POST "http://127.0.0.1:$port$uri&_signature=$signature" -d "$data" >/dev/null
 
