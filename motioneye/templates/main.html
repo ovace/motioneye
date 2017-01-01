@@ -138,6 +138,55 @@
                     <td colspan="100"><div class="settings-item-separator" style="margin: 0px 0px 1.5em 0px;"></div></td>
                 </tr>
 
+                <!-- MQTT Settings -->
+                <div class="settings-section-title" id="deviceSectionDiv">
+                    <input type="checkbox" class="styled section device camera-config" id="mqttEnabledSwitch">
+                    <span class="help-mark" title="enable this if you want to use emit MQTT messages">?</span>
+                    <a class="settings-section-title">MQTT</a>
+                    <span class="minimize open"></span>
+                </div>
+
+                <table class="settings">
+                    <tr class="settings-item" strip="true">
+                        <td class="settings-item-label"><span class="settings-item-label">Client Id</span></td>
+                        <td class="settings-item-value"><input type="text" class="styled device mqtt-config" id="mqttClientId" placeholder="MQTT client id"></td>
+                    </tr>
+
+                    <tr class="settings-item" strip="true">
+                        <td class="settings-item-label"><span class="settings-item-label">Broker host</span></td>
+                        <td class="settings-item-value"><input type="text" class="styled device mqtt-config" id="mqttBroker" placeholder="Broker Host"></td>
+                    </tr>
+
+                    <tr class="settings-item" strip="true">
+                        <td class="settings-item-label"><span class="settings-item-label">Broker port</span></td>
+                        <td class="settings-item-value"><input type="text" class="styled device mqtt-config" id="mqttBrokerPort" placeholder="Broker 1883"></td>
+                    </tr>
+
+                    <tr class="settings-item" strip="true">
+                        <td class="settings-item-label"><span class="settings-item-label">Topic prefix</span></td>
+                        <td class="settings-item-value"><input type="text" class="styled device mqtt-config" id="mqttTopicPrefix" placeholder="motionEye"></td>
+                    </tr>
+
+                    <tr class="settings-item">
+                        <td class="settings-item-label"><span class="settings-item-label">Use anonymous connection</span></td>
+                        <td class="settings-item-value"><input type="checkbox" class="styled mqtt-config" id="mqttNoAuth"></td>
+                        <td><span class="help-mark" title="enables broker authentification">?</span></td>
+                    </tr>
+
+                    <tr class="settings-item" strip="true">
+                        <td class="settings-item-label"><span class="settings-item-label">User</span></td>
+                        <td class="settings-item-value"><input type="text" class="styled mqtt-config" id="mqttUser" placeholder="user name"></td>
+                    </tr>
+
+                    <tr class="settings-item" strip="true">
+                        <td class="settings-item-label"><span class="settings-item-label">Password</span></td>
+                        <td class="settings-item-value"><input type="password" class="styled mqtt-config" id="mqttPassword"></td>
+                    </tr>
+
+
+                </table>
+
+
                 <!-- General Settings -->
                 <div class="settings-section-title" id="generalSectionDiv">
                     <span class="help-mark" title="general settings, not related to any camera">?</span>
