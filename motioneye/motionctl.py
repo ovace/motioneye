@@ -293,6 +293,8 @@ def set_motion_detected(camera_id, motion_detected):
         
     _motion_detected[camera_id] = motion_detected
 
+    print 'detected %s %r' % (camera_id,motion_detected)
+
 
 def camera_id_to_thread_id(camera_id):
     import config
