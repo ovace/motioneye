@@ -112,13 +112,20 @@ def createMQTTClient(RelayEventHandler,camera_config):
         mqc.on_disconnect = disconnecthandler
         mqc.on_error = disconnecthandler
         RelayEventHandler.mqc = mqc
-        topic = mqttTopicPrefix
+        topic = camera_config["@mqttTopicPrefix"]
+
+
         if not topic.endswith("/"):
             topic += "/"
+
         mqc.will_set(topic + "connected", 0, qos=2, retain=True)
 
-        _sleep = 10
-        for attempt in range(10000):
+        if camera_config['@mqttNoAuth'] == 'off':
+            mqc.username_pw_set(camera_config['@mqttUser'],camera_config['@mqttPassword'])
+            mqttlogging("MQTT: Anonymous disabled, connecting as user: %s" % camera_config['@mqttUser'])
+
+        _sleep = 1
+        for attempt in range(4):
             try:
                 mqttlogging("MQTT: Connecting to MQTT broker at %s:%s" % (mqttHost, mqttPort))
                 mqc.connect(camera_config['@mqttBroker'], camera_config['@mqttBrokerPort'], 60)
@@ -131,6 +138,7 @@ def createMQTTClient(RelayEventHandler,camera_config):
         else:
             mqttlogging("MQTT: No connection possible, giving up")
             return (False)
+
         mqc.publish(topic + "connected", 2, qos=1, retain=True)
         mqc.loop_start()
         return (True)
